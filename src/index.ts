@@ -1,73 +1,62 @@
 import express, { Request, Response } from 'express';
 import { Product } from './Products';
 import { v4 as uuidv4 } from 'uuid';
+import dotenv from 'dotenv';
+import connectDB from './DB';
+import { ProductModel, IProduct } from './models/Product';
 import { Update } from './Update';
+
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
-let products: Product[] = [
-    {
-        id: '1',
-        title: 'Sample Product',
-        image: 'https://example.com/image.jpg',
-        price: 99.99,
-        link: 'https://example.com/product'
-    }
-];
+// Connect to MongoDB
+connectDB();
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
-    res.send('Hello from Express with typescript!');
+  res.send('Hello from Express with MongoDB + TypeScript!');
 });
 
 // READ all products
-app.get('/products', (req: Request, res: Response<Product[]>) => {
-    res.json(products);
+app.get('/products', async (req: Request, res: Response<IProduct[]>) => {
+  const products = await ProductModel.find();
+  res.json(products);
 });
 
 // CREATE a new product
-app.post('/product', (req: Request, res: Response<Product>) => {
-    const newProduct: Product = { id: uuidv4(), ...req.body };
-    products.push(newProduct);
-    res.status(201).json(newProduct);
+app.post('/product', async (req: Request, res: Response<IProduct>) => {
+  const newProduct = new ProductModel({ id_: uuidv4(), ...req.body });
+  await newProduct.save();
+  res.status(201).json(newProduct);
 });
 
 // UPDATE a product by ID
-app.put('/products/:id', (req: Request<{ id: string }, {}, Update>, res: Response) => {
-    const { id } = req.params;
-    const updateData = req.body;
-
-    const index = products.findIndex(p => p.id === id);
-    console.log("the index is ",index);
-    console.log("the old data is ",products[index]);
-    console.log("the new data is ",updateData);
-    if (index === -1) {
-        return res.status(404).json({ error: 'Product not found' });
-    }
-
-    products[index] = { ...products[index], ...updateData };
-    res.json(products[index]);
-});
-
-app.delete('/products/:id', (req: Request<{ id: string }>, res: Response) => {
+app.put('/products/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
+  const updated = await ProductModel.findOneAndUpdate({ id }, req.body, { new: true });
 
-  const index = products.findIndex(p => p.id === id);
-  if (index === -1) {
+  if (!updated) {
     return res.status(404).json({ error: 'Product not found' });
   }
 
-  // Remove product
-  const deletedProduct = products.splice(index, 1)[0];
-  console.log("the id is", id)
-  console.log("the index is", index)
-  console.log("the deleted product is", deletedProduct)
-  res.json({ message: 'Product deleted', product: deletedProduct });
-  
+  res.json(updated);
+});
+
+// DELETE a product by ID
+app.delete('/products/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const deleted = await ProductModel.findOneAndDelete({ id });
+
+  if (!deleted) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+
+  res.json({ message: 'Product deleted', product: deleted });
 });
 
 app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

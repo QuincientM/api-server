@@ -1,6 +1,8 @@
 export interface Update {
-  title?: string;
-  image?: string;
-  price?: number;
-  link?: string;
+    id_: string;
+    id?: string;
+    title?: string;
+    image?: string;
+    price?: number;
+    link?: string;
 }
