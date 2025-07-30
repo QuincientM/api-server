@@ -5,15 +5,30 @@ import dotenv from 'dotenv';
 import connectDB from './DB';
 import { ProductModel, IProduct } from './models/Product';
 import { Update } from './Update';
-
-dotenv.config();
+import mongoose from 'mongoose';
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(express.json());
-
-// Connect to MongoDB
+app.use(express.json()); //connect mongoDB
 connectDB();
+dotenv.config();
+
+if (!process.env.MONGO_URL) {
+  throw new Error("❌ Missing MONGO_URL in environment variables");
+}
+
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+  })
+  .catch((err: unknown) => {
+    if (err instanceof Error) {
+      console.error("❌ MongoDB connection error:", err.message);
+    } else {
+      console.error("❌ Unknown MongoDB error:", err);
+    }
+  });
+
 
 // Root route
 app.get('/', (req: Request, res: Response) => {

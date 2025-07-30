@@ -22,15 +22,15 @@
   },
   "homepage": "https://github.com/QuincientM/api-server#readme",
   "dependencies": {
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.16.4",
+    "mongoose": "^8.16.5",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/mongoose": "^5.11.96",
-    "@types/node": "^24.0.10",
+    "@types/node": "^24.1.0",
     "@types/uuid": "^10.0.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
