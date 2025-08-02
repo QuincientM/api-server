@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
-import { Product } from './Products';
+//import { Product } from './Products';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import connectDB from './DB';
 import { ProductModel, IProduct } from './models/Product';
-import { Update } from './Update';
-import mongoose from 'mongoose';
+//import { Update } from './Update';
+import cors from 'cors';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,10 +13,23 @@ app.use(express.json()); //connect mongoDB
 connectDB();
 dotenv.config();
 
+
+    const corsOptions = {
+        origin: 'http://localhost:5173', // Or an array of allowed origins: ['http://localhost:3000', 'https://yourdomain.com']
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+        credentials: true, // Allow sending of cookies/auth headers
+        optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 200
+    };
+
+    app.use(cors(corsOptions));
+
+
+
 if (!process.env.MONGO_URL) {
   throw new Error("❌ Missing MONGO_URL in environment variables");
 }
 
+/*
 mongoose.connect(process.env.MONGO_URL)
   .then(() => {
     console.log("✅ Connected to MongoDB");
@@ -28,6 +41,7 @@ mongoose.connect(process.env.MONGO_URL)
       console.error("❌ Unknown MongoDB error:", err);
     }
   });
+  */
 
 
 // Root route
